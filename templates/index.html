@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>引越し見積もりフォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
-  <div class="max-w-4xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6 text-center">引越し見積もりフォーム</h1>
-    <div class="mb-6">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="ラビット引越しセンター" class="h-20">
+  <div class="max-w-4xl mx-auto p-4 sm:p-6">
+    <div class="mb-4">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="ラビット引越しセンター" class="h-16">
     </div>
+
+    <h1 class="text-3xl font-bold mb-6 text-center">引越し見積もりフォーム</h1>
 
     <form method="POST" class="bg-white shadow-lg rounded-xl p-6 space-y-4">
       <!-- ユーザー情報 -->
@@ -38,8 +40,16 @@
         {% for item, point in items.items() %}
         <div class="flex items-center justify-between">
           <label class="block text-sm font-medium">{{ item }}（{{ point }} pt）</label>
-          <input type="number" name="{{ item }}" value="0" min="0"
-                 class="w-20 border border-gray-300 rounded px-2 py-1 text-right">
+          <input
+            type="number"
+            name="{{ item }}"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            min="0"
+            value="0"
+            class="w-24 border border-gray-300 rounded px-2 py-1 text-right"
+          >
         </div>
         {% endfor %}
       </div>
@@ -62,25 +72,25 @@
     {% if result %}
     <div class="mt-10 bg-white shadow-md rounded-xl p-6">
       <h2 class="text-2xl font-semibold mb-4">見積もり結果</h2>
-      <p>👤 <strong>お名前：</strong> {{ result.name }}</p>
-      <p>📞 <strong>電話番号：</strong> {{ result.phone }}</p>
-      <p>🏠 <strong>引越し元：</strong> {{ result.from_address }}</p>
-      <p>🏡 <strong>引越し先：</strong> {{ result.to_address }}</p>
+      <p>👤 <strong>お名前：</strong> {{ result["name"] }}</p>
+      <p>📞 <strong>電話番号：</strong> {{ result["phone"] }}</p>
+      <p>🏠 <strong>引越し元：</strong> {{ result["from_address"] }}</p>
+      <p>🏡 <strong>引越し先：</strong> {{ result["to_address"] }}</p>
       <hr class="my-4">
-      <p>🚚 <strong>合計ポイント：</strong> {{ result.total_points }} pt</p>
-      <p>📏 <strong>移動距離：</strong> {{ result.distance }} km</p>
+      <p>🚚 <strong>合計ポイント：</strong> {{ result["total_points"] }} pt</p>
+      <p>📏 <strong>移動距離：</strong> {{ result["distance"] }} km</p>
 
       <h3 class="text-xl mt-4 mb-2 font-semibold">使用トラック</h3>
       <ul class="list-disc ml-6 space-y-1">
-        {% for t in result.truck_point_splits %}
+        {% for t in result["truck_point_splits"] %}
         <li>{{ t.truck.name }}（{{ t.points }} pt 担当） - 作業員 {{ t.workers }}人</li>
         {% endfor %}
       </ul>
 
-      <p class="mt-4">👷‍♂️ <strong>作業員合計：</strong> {{ result.total_workers }} 人</p>
-      <p>🚛 <strong>車両費：</strong> ¥{{ result.vehicle_cost }}</p>
-      <p>💼 <strong>作業員費：</strong> ¥{{ result.worker_cost }}</p>
-      <h3 class="text-2xl mt-4 font-bold">💰 合計（税込）：¥{{ result.total_cost_with_tax }}</h3>
+      <p class="mt-4">👷‍♂️ <strong>作業員合計：</strong> {{ result["total_workers"] }} 人</p>
+      <p>🚛 <strong>車両費：</strong> ¥{{ result["vehicle_cost"] }}</p>
+      <p>💼 <strong>作業員費：</strong> ¥{{ result["worker_cost"] }}</p>
+      <h3 class="text-2xl mt-4 font-bold">💰 合計（税込）：¥{{ result["total_cost_with_tax"] }}</h3>
 
       <a href="/view_estimate" target="_blank"
          class="inline-block mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
