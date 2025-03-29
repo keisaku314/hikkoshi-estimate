@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>引越し見積もりフォーム</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="max-w-4xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-center">引越し見積もりフォーム</h1>
+    <div class="mb-6">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="ラビット引越しセンター" class="h-20">
+    </div>
+
+    <form method="POST" class="bg-white shadow-lg rounded-xl p-6 space-y-4">
+      <!-- ユーザー情報 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1 font-medium">お名前</label>
+          <input type="text" name="name" required class="w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">電話番号</label>
+          <input type="tel" name="phone" required class="w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">引越し元住所</label>
+          <input type="text" name="from_address" required class="w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">引越し先住所</label>
+          <input type="text" name="to_address" required class="w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+      </div>
+
+      <!-- 荷物 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% for item, point in items.items() %}
+        <div class="flex items-center justify-between">
+          <label class="block text-sm font-medium">{{ item }}（{{ point }} pt）</label>
+          <input type="number" name="{{ item }}" value="0" min="0"
+                 class="w-20 border border-gray-300 rounded px-2 py-1 text-right">
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- 距離 -->
+      <div class="mt-6">
+        <label class="block mb-1 font-medium">距離（km）</label>
+        <input type="number" name="distance" value="0" min="0"
+               class="w-full border border-gray-300 rounded px-3 py-2">
+      </div>
+
+      <div class="text-center mt-6">
+        <button type="submit"
+                class="bg-blue-600 text-white font-bold px-6 py-2 rounded hover:bg-blue-700 transition">
+          見積もりを計算
+        </button>
+      </div>
+    </form>
+
+    {% if result %}
+    <div class="mt-10 bg-white shadow-md rounded-xl p-6">
+      <h2 class="text-2xl font-semibold mb-4">見積もり結果</h2>
+      <p>👤 <strong>お名前：</strong> {{ result.name }}</p>
+      <p>📞 <strong>電話番号：</strong> {{ result.phone }}</p>
+      <p>🏠 <strong>引越し元：</strong> {{ result.from_address }}</p>
+      <p>🏡 <strong>引越し先：</strong> {{ result.to_address }}</p>
+      <hr class="my-4">
+      <p>🚚 <strong>合計ポイント：</strong> {{ result.total_points }} pt</p>
+      <p>📏 <strong>移動距離：</strong> {{ result.distance }} km</p>
+
+      <h3 class="text-xl mt-4 mb-2 font-semibold">使用トラック</h3>
+      <ul class="list-disc ml-6 space-y-1">
+        {% for t in result.truck_point_splits %}
+        <li>{{ t.truck.name }}（{{ t.points }} pt 担当） - 作業員 {{ t.workers }}人</li>
+        {% endfor %}
+      </ul>
+
+      <p class="mt-4">👷‍♂️ <strong>作業員合計：</strong> {{ result.total_workers }} 人</p>
+      <p>🚛 <strong>車両費：</strong> ¥{{ result.vehicle_cost }}</p>
+      <p>💼 <strong>作業員費：</strong> ¥{{ result.worker_cost }}</p>
+      <h3 class="text-2xl mt-4 font-bold">💰 合計（税込）：¥{{ result.total_cost_with_tax }}</h3>
+
+      <a href="/view_estimate" target="_blank"
+         class="inline-block mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+        📄 見積書を表示（印刷/PDF保存はこちら）
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>

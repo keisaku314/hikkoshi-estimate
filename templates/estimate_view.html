@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>見積書</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; color: #333; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .logo { height: 60px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    .section-title { font-weight: bold; font-size: 18px; margin-top: 30px; }
+    .total { font-size: 18px; font-weight: bold; }
+    .print-btn { margin-top: 20px; text-align: right; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="{{ url_for('static', filename='logo.png') }}" class="logo" alt="会社ロゴ">
+    <h1>引越し見積書</h1>
+    <p>株式会社サンプル引越しセンター</p>
+    <p>東京都新宿区〇〇〇〇〇</p>
+    <p>TEL: 03-1234-5678</p>
+  </div>
+
+  <p><strong>お名前：</strong>{{ result["name"] }}</p>
+  <p><strong>電話番号：</strong>{{ result["phone"] }}</p>
+  <p><strong>引越し元：</strong>{{ result["from_address"]  }}</p>
+  <p><strong>引越し先：</strong>{{ result["to_address"] }}</p>
+
+  <div class="section-title">■ 荷物リスト</div>
+  <table>
+    <tr><th>荷物名</th><th>数量</th><th>ポイント</th></tr>
+    {% for item in result["items"] %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.count }}</td>
+        <td>{{ item.points }} pt</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <div class="section-title">■ お見積もり詳細</div>
+  <p>合計ポイント：{{ result["total_points"] }} pt</p>
+  <p>距離：{{ result["distance"] }} km</p>
+
+  <ul>
+    {% for t in result["truck_point_splits"] %}
+    <li>{{ t.truck.name }}（{{ t.points }} pt） - 作業員 {{ t.workers }} 人</li>
+    {% endfor %}
+  </ul>
+
+  <p>作業員費：¥{{ result["worker_cost"] }}</p>
+  <p>車両費：¥{{ result["vehicle_cost"] }}</p>
+  <p class="total">合計（税込）：¥{{ result["total_cost_with_tax"] }}</p>
+
+  <div class="section-title">■ 備考</div>
+  <p>・本見積もりは概算です。実際の作業内容により変動する場合があります。</p>
+
+  <div class="print-btn">
+    <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px;">🖨 このページを印刷</button>
+  </div>
+
+</body>
+</html>
