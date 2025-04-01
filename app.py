@@ -109,6 +109,8 @@ def get_worker_count(points):
     return 0
 
 def get_distance_multiplier(distance):
+    # Render向けなどで数字が文字列の場合に備え、整数化
+    distance = int(distance)
     if distance <= 10:
         return 1.0
     else:
@@ -118,12 +120,24 @@ def get_distance_multiplier(distance):
 def index():
     result = None
     if request.method == "POST":
+        # ユーザー情報
         name = request.form["name"]
         phone = request.form["phone"]
         from_address = request.form["from_address"]
         to_address = request.form["to_address"]
         distance = int(request.form["distance"])
+        remarks = request.form["remarks"]
 
+        # 日程関連（引越し元）
+        from_date = request.form["from_date"]
+        from_time_period = request.form.get("from_time_period", "")
+        from_time_memo = request.form.get("from_time_memo", "")
+
+         # 日程関連（引越し先）
+        to_date = request.form["to_date"]
+        to_time_period = request.form.get("to_time_period", "")
+        to_time_memo = request.form.get("to_time_memo", "")
+        
         # 荷物処理
         items = []
         total_points = 0
@@ -176,9 +190,19 @@ def index():
             "phone": phone,
             "from_address": from_address,
             "to_address": to_address,
+            "distance": distance,
+            "remarks": remarks,
+
+            "from_date": from_date,
+            "from_time_period": from_time_period,
+            "from_time_memo": from_time_memo,
+
+            "to_date": to_date,
+            "to_time_period": to_time_period,
+            "to_time_memo": to_time_memo,
+
             "items": items,
             "total_points": total_points,
-            "distance": distance,
             "truck_point_splits": truck_point_splits,
             "total_workers": total_workers,
             "vehicle_cost": int(vehicle_cost),
