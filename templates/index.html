@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <title>引越し見積もりフォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAufEwV6-5-nO1xlivtd795J-yMpjJcIYY&libraries=places"></script>
+  
+  <!-- Google Maps JavaScript API + Places -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAufEwV6-5-nO1xlivtd795J-yMpjJcIYY&libraries=places"></script>
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  
+     /* ステッパーを非表示にするCSS */ 
   <style>
-    /* ステッパーを非表示にするCSS */
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -17,6 +21,7 @@
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
   <div class="max-w-4xl mx-auto p-4 sm:p-6">
+    <!-- ロゴ -->
     <div class="mb-4">
       <img src="{{ url_for('static', filename='logo.png') }}" alt="ラビット引越しセンター" class="h-16">
     </div>
@@ -34,13 +39,53 @@
           <label class="block mb-1 font-medium">電話番号</label>
           <input type="tel" name="phone" required class="w-full border border-gray-300 rounded px-3 py-2">
         </div>
+
+        
+        <!-- 引越し元 -->
         <div>
           <label class="block mb-1 font-medium">引越し元住所</label>
-          <input type="text" id="from_address" name="from_address" required class="w-full border border-gray-300 rounded px-3 py-2">
+          <input type="text" id="from_address" name="from_address"
+                 required class="w-full border border-gray-300 rounded px-3 py-2">
+
+          <!-- 日付 -->
+          <label class="block mt-2 font-medium">引越し元希望日</label>
+          <input type="date" name="from_date" class="w-full border border-gray-300 rounded px-3 py-2">
+
+          <!-- 朝/午後/フリー -->
+          <div class="flex items-center space-x-2 mt-1">
+            <label><input type="radio" name="from_time_period" value="朝" checked> 朝</label>
+            <label><input type="radio" name="from_time_period" value="午後"> 午後</label>
+            <label><input type="radio" name="from_time_period" value="フリー"> フリー</label>
+          </div>
+
+          <!-- 自由記入欄 -->
+          <input type="text" name="from_time_memo"
+                 placeholder="時間についてのメモ等（例：12時以降なら可）"
+                 class="w-full border border-gray-300 rounded px-3 py-1 mt-1">
         </div>
+
+        
+        <!-- 引越し先 -->
         <div>
           <label class="block mb-1 font-medium">引越し先住所</label>
-          <input type="text" id="to_address" name="to_address" required class="w-full border border-gray-300 rounded px-3 py-2">
+          <input type="text" id="to_address" name="to_address"
+                 required class="w-full border border-gray-300 rounded px-3 py-2">
+
+          <!-- 日付 -->
+          <label class="block mt-2 font-medium">引越し先希望日</label>
+          <input type="date" name="to_date" class="w-full border border-gray-300 rounded px-3 py-2">
+
+          <!-- 朝/午後/フリー -->
+          <div class="flex items-center space-x-2 mt-1">
+            <label><input type="radio" name="to_time_period" value="朝" checked> 朝</label>
+            <label><input type="radio" name="to_time_period" value="午後"> 午後</label>
+            <label><input type="radio" name="to_time_period" value="フリー"> フリー</label>
+          </div>
+
+          <!-- 自由記入欄 -->
+          <input type="text" name="to_time_memo"
+                 placeholder="時間についてのメモ等"
+                 class="w-full border border-gray-300 rounded px-3 py-1 mt-1">
         </div>
       </div>
 
@@ -89,7 +134,16 @@
         <input type="number" id="distance" name="distance" value="0" min="0"
                class="w-full border border-gray-300 rounded px-3 py-2">
       </div>
-
+      
+      <!-- 備考欄 -->
+      <div class="mt-2">
+        <label class="block mb-1 font-medium">備考</label>
+        <textarea name="remarks" rows="3"
+                  class="w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="何かメモがあれば"></textarea>
+      </div>
+      
+      <!-- 送信ボタン -->
       <div class="text-center mt-6">
         <button type="submit"
                 class="bg-blue-600 text-white font-bold px-6 py-2 rounded hover:bg-blue-700 transition">
@@ -104,10 +158,13 @@
       <p>👤 <strong>お名前：</strong> {{ result["name"] }}</p>
       <p>📞 <strong>電話番号：</strong> {{ result["phone"] }}</p>
       <p>🏠 <strong>引越し元：</strong> {{ result["from_address"] }}</p>
+      <p>📅 <strong>引越し日：{{ result["from_date"] }} / {{ result["from_time_period"] }} / {{ result["from_time_memo"] }}</strong></p>
       <p>🏡 <strong>引越し先：</strong> {{ result["to_address"] }}</p>
+      <p>📅 <strong>到着日：{{ result["to_date"] }} / {{ result["to_time_period"] }} / {{ result["to_time_memo"] }}</strong></p>
       <hr class="my-4">
       <p>🚚 <strong>合計ポイント：</strong> {{ result["total_points"] }} pt</p>
       <p>📏 <strong>移動距離：</strong> {{ result["distance"] }} km</p>
+      <p>🗒 <strong>備考：</strong> {{ result["remarks"] }}</p>
 
       <h3 class="text-xl mt-4 mb-2 font-semibold">使用トラック</h3>
       <ul class="list-disc ml-6 space-y-1">
