@@ -183,8 +183,8 @@
         const distanceMeters = response.rows[0].elements[0].distance.value;
         // kmに変換
         const distanceKm = distanceMeters / 1000;
-        // 小数点1桁くらいに整形
-        const distanceRounded = Math.round(distanceKm * 10) / 10;
+        // 小数点以下を切り捨て
+        distanceKm = Math.floor(distanceKm);
         // inputにセット
         document.getElementById("distance").value = distanceRounded;
       }
