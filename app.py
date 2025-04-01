@@ -273,7 +273,7 @@ def index():
         # フォーム入力を維持したいので form_data に格納して再度レンダリング時に渡す
         form_data = request.form.to_dict()
 
-      else:
+    else:
         # GET の場合、もしセッションにデータあればフォーム初期表示に反映
         if "latest_result" in session:
             saved = json.loads(session["latest_result"])
