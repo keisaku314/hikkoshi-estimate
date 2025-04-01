@@ -116,8 +116,16 @@ def get_distance_multiplier(distance):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    # フォーム入力を維持するための変数
+    form_data = {}
     result = None
+
     if request.method == "POST":
+        # 担当者 & シーズン & キャンペーンコード
+        staff = request.form.get("staff", "")
+        season = request.form.get("season", "normal")  # normal or peak
+        campaign_code = request.form.get("campaign_code", "")
+        
         # ユーザー情報
         name = request.form["name"]
         phone = request.form["phone"]
@@ -176,14 +184,62 @@ def index():
             })
             total_workers += workers
             temp_remaining -= pts
+            
+        # 繁忙期 or 通常期で費用を切り替え
+        # たとえば繁忙期だと +20% (係数1.2)
+        # 作業員費(20000円) → 繁忙期なら 24000円
+        # 車両費 → truck["cost"] * 1.2
+        if season == "peak":
+            season_factor = 1.2
+        else:
+            season_factor = 1.0
 
-        multiplier = get_distance_multiplier(distance)
-        vehicle_cost = sum([t["truck"]["cost"] * multiplier for t in truck_point_splits])
-        worker_cost = total_workers * 20000
+        # 距離係数
+        distance_multiplier = get_distance_multiplier(distance)
+
+        # 車両費 + 作業員費
+        vehicle_cost = 0
+        for t in truck_point_splits:
+            base_cost = t["truck"]["cost"]
+            # 距離係数×シーズン係数
+            cost = base_cost * distance_multiplier * season_factor
+            vehicle_cost += cost
+
+        # 作業員費
+        base_worker_cost = 20000  # 通常期1人あたり
+        worker_cost = total_workers * base_worker_cost * season_factor
+
+        # 小計
         total_cost = int(vehicle_cost + worker_cost)
+
+        # 税込
         total_cost_with_tax = int(total_cost * 1.1)
 
+        # ★ キャンペーンコードで値引き ★
+        #  - 0.1 ~ 0.9 → 乗算割引 (10%~90%オフ)
+        #  - 1以上      → 差し引き (例 5000 => 5000円引)
+        discount_code_value = 0
+        try:
+            discount_code_value = float(campaign_code)
+        except ValueError:
+            pass  # 数値以外なら0として無視
+
+        final_cost = total_cost_with_tax
+        if 0.1 <= discount_code_value < 1.0:
+            # 乗算割引
+            final_cost = int(final_cost * discount_code_value)
+        elif discount_code_value >= 1.0:
+            # 差し引き
+            final_cost = final_cost - discount_code_value
+            if final_cost < 0:
+                final_cost = 0  # マイナスにならないように
+
+        # 結果まとめ
         result = {
+            "staff": staff,
+            "season": season,
+            "campaign_code": campaign_code,
+
             "name": name,
             "phone": phone,
             "from_address": from_address,
@@ -203,14 +259,51 @@ def index():
             "total_points": total_points,
             "truck_point_splits": truck_point_splits,
             "total_workers": total_workers,
+
             "vehicle_cost": int(vehicle_cost),
-            "worker_cost": worker_cost,
+            "worker_cost": int(worker_cost),
             "total_cost": total_cost,
             "total_cost_with_tax": total_cost_with_tax,
+            "final_cost": int(final_cost),
         }
 
+        # セッションに保存
         session["latest_result"] = json.dumps(result, ensure_ascii=False)
 
+        # フォーム入力を維持したいので form_data に格納して再度レンダリング時に渡す
+        form_data = request.form.to_dict()
+
+        else:
+        # GET の場合、もしセッションにデータあればフォーム初期表示に反映
+        if "latest_result" in session:
+            saved = json.loads(session["latest_result"])
+            # ここで必要なら少し補完
+            form_data = {
+                "staff": saved.get("staff", ""),
+                "season": saved.get("season", "normal"),
+                "campaign_code": saved.get("campaign_code", ""),
+                "name": saved.get("name", ""),
+                "phone": saved.get("phone", ""),
+                "from_address": saved.get("from_address", ""),
+                "to_address": saved.get("to_address", ""),
+                "distance": str(saved.get("distance", "0")),
+                "remarks": saved.get("remarks", ""),
+                "from_date": saved.get("from_date", ""),
+                "from_time_period": saved.get("from_time_period", ""),
+                "from_time_memo": saved.get("from_time_memo", ""),
+                "to_date": saved.get("to_date", ""),
+                "to_time_period": saved.get("to_time_period", ""),
+                "to_time_memo": saved.get("to_time_memo", ""),
+            }
+            for item, pt in ITEM_POINTS.items():
+                # itemsの中にあるなら入れておく
+                # input nameは item
+                count = 0
+                for i in saved.get("items", []):
+                    if i["name"] == item:
+                        count = i["count"]
+                form_data[item] = str(count)
+                
     return render_template("index.html", items=ITEM_POINTS, result=result)
 
 @app.route("/view_estimate")
