@@ -5,12 +5,12 @@
   <title>引越し見積もりフォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  <!-- Google Maps JavaScript API + Places -->
+   Google Maps JavaScript API + Places -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAufEwV6-5-nO1xlivtd795J-yMpjJcIYY&libraries=places"></script>
   
   <script src="https://cdn.tailwindcss.com"></script>
   
-     /* ステッパーを非表示にするCSS */ 
+  <!-- ステッパーを非表示にするCSS -->
   <style>
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
@@ -205,17 +205,15 @@
     }
   </script>
   
-  <script>
-  let fromAutocomplete, toAutocomplete;
-
+<script>
   function initMap() {
     // from_address用のオートコンプリート
     const fromInput = document.getElementById("from_address");
-    fromAutocomplete = new google.maps.places.Autocomplete(fromInput);
+    const fromAutocomplete = new google.maps.places.Autocomplete(fromInput);
 
     // to_address用のオートコンプリート
     const toInput = document.getElementById("to_address");
-    toAutocomplete = new google.maps.places.Autocomplete(toInput);
+    const toAutocomplete = new google.maps.places.Autocomplete(toInput);
 
     // 住所が選択されたタイミングで距離を計算
     fromAutocomplete.addListener('place_changed', calculateDistance);
@@ -239,7 +237,7 @@
         // 距離を取得 (メートル)
         const distanceMeters = response.rows[0].elements[0].distance.value;
         // kmに変換
-        const distanceKm = distanceMeters / 1000;
+        let distanceKm = distanceMeters / 1000;
         // 小数点以下を切り捨て
         distanceKm = Math.floor(distanceKm);
         // inputにセット
