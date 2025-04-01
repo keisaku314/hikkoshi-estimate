@@ -272,37 +272,6 @@ def index():
 
         # フォーム入力を維持したいので form_data に格納して再度レンダリング時に渡す
         form_data = request.form.to_dict()
-
-        else:
-        # GET の場合、もしセッションにデータあればフォーム初期表示に反映
-        if "latest_result" in session:
-            saved = json.loads(session["latest_result"])
-            # ここで必要なら少し補完
-            form_data = {
-                "staff": saved.get("staff", ""),
-                "season": saved.get("season", "normal"),
-                "campaign_code": saved.get("campaign_code", ""),
-                "name": saved.get("name", ""),
-                "phone": saved.get("phone", ""),
-                "from_address": saved.get("from_address", ""),
-                "to_address": saved.get("to_address", ""),
-                "distance": str(saved.get("distance", "0")),
-                "remarks": saved.get("remarks", ""),
-                "from_date": saved.get("from_date", ""),
-                "from_time_period": saved.get("from_time_period", ""),
-                "from_time_memo": saved.get("from_time_memo", ""),
-                "to_date": saved.get("to_date", ""),
-                "to_time_period": saved.get("to_time_period", ""),
-                "to_time_memo": saved.get("to_time_memo", ""),
-            }
-            for item, pt in ITEM_POINTS.items():
-                # itemsの中にあるなら入れておく
-                # input nameは item
-                count = 0
-                for i in saved.get("items", []):
-                    if i["name"] == item:
-                        count = i["count"]
-                form_data[item] = str(count)
                 
     return render_template("index.html", items=ITEM_POINTS, result=result)
 
