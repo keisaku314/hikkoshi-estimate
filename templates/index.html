@@ -35,24 +35,44 @@
         </div>
       </div>
 
-      <!-- 荷物 -->
+       <!-- 荷物 (プラス・マイナスボタン付き) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {% for item, point in items.items() %}
         <div class="flex items-center justify-between">
           <label class="block text-sm font-medium">{{ item }}（{{ point }} pt）</label>
-          <input
-            type="number"
-            name="{{ item }}"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            autocomplete="off"
-            min="0"
-            value="0"
-            class="w-24 border border-gray-300 rounded px-2 py-1 text-right"
-          >
+
+          <!-- ボタン＆数値入力欄 -->
+          <div class="flex items-center space-x-2">
+            <button
+              type="button"
+              class="bg-gray-300 px-2 py-1 rounded"
+              onclick="decrementItem('{{ item }}')"
+            >
+              -
+            </button>
+            <input
+              id="{{ item }}-input"
+              type="number"
+              name="{{ item }}"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              autocomplete="off"
+              min="0"
+              value="0"
+              class="w-16 border border-gray-300 rounded px-2 py-1 text-right"
+            >
+            <button
+              type="button"
+              class="bg-gray-300 px-2 py-1 rounded"
+              onclick="incrementItem('{{ item }}')"
+            >
+              +
+            </button>
+          </div>
         </div>
         {% endfor %}
       </div>
+
 
       <!-- 距離 -->
       <div class="mt-6">
@@ -99,5 +119,24 @@
     </div>
     {% endif %}
   </div>
+
+   <!-- JSで＋−操作するスクリプト -->
+  <script>
+    function incrementItem(item) {
+      const input = document.getElementById(item + '-input');
+      let currentValue = parseInt(input.value) || 0;
+      currentValue += 1;
+      input.value = currentValue;
+    }
+
+    function decrementItem(item) {
+      const input = document.getElementById(item + '-input');
+      let currentValue = parseInt(input.value) || 0;
+      if (currentValue > 0) {
+        currentValue -= 1;
+      }
+      input.value = currentValue;
+    }
+  </script>
 </body>
 </html>
