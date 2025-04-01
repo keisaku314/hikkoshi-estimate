@@ -279,21 +279,21 @@ def index():
             saved = json.loads(session["latest_result"])
             # ここで必要なら少し補完
             form_data = {
-                "staff": saved.get("staff", ""),
-                "season": saved.get("season", "normal"),
-                "campaign_code": saved.get("campaign_code", ""),
-                "name": saved.get("name", ""),
-                "phone": saved.get("phone", ""),
-                "from_address": saved.get("from_address", ""),
-                "to_address": saved.get("to_address", ""),
-                "distance": str(saved.get("distance", "0")),
-                "remarks": saved.get("remarks", ""),
-                "from_date": saved.get("from_date", ""),
-                "from_time_period": saved.get("from_time_period", ""),
-                "from_time_memo": saved.get("from_time_memo", ""),
-                "to_date": saved.get("to_date", ""),
-                "to_time_period": saved.get("to_time_period", ""),
-                "to_time_memo": saved.get("to_time_memo", ""),
+            "staff": saved.get("staff", ""),
+            "season": saved.get("season", "normal"),
+            "campaign_code": saved.get("campaign_code", ""),
+            "name": saved.get("name", ""),
+            "phone": saved.get("phone", ""),
+            "from_address": saved.get("from_address", ""),
+            "to_address": saved.get("to_address", ""),
+            "distance": str(saved.get("distance", "0")),
+            "remarks": saved.get("remarks", ""),
+            "from_date": saved.get("from_date", ""),
+            "from_time_period": saved.get("from_time_period", ""),
+            "from_time_memo": saved.get("from_time_memo", ""),
+            "to_date": saved.get("to_date", ""),
+            "to_time_period": saved.get("to_time_period", ""),
+            "to_time_memo": saved.get("to_time_memo", ""),
             }
             for item, pt in ITEM_POINTS.items():
                 # itemsの中にあるなら入れておく
