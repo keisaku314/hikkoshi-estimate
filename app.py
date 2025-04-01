@@ -121,6 +121,9 @@ def index():
     result = None
 
     if request.method == "POST":
+
+        
+        form_data = request.form.to_dict()
         # 担当者 & シーズン & キャンペーンコード
         staff = request.form.get("staff", "")
         season = request.form.get("season", "normal")  # normal or peak
@@ -305,7 +308,7 @@ def index():
                 form_data[item] = str(count)
 
                 
-    return render_template("index.html", items=ITEM_POINTS, result=result)
+    return render_template("index.html", items=ITEM_POINTS, result=result, form_data=form_data)
 
 @app.route("/view_estimate")
 def view_estimate():
