@@ -22,7 +22,12 @@
     <p>株式会社ラビット引越しセンター</p>
     <p>東京都三鷹市下連雀１丁目９−２８ ガーデン武尊 202</p>
     <p>TEL: 0422-24-7452</p>
+    <!-- ④ ここに担当者記載 -->
+    <p>担当者：{{ result["staff"] }}</p>
   </div>
+
+  <p><strong>シーズン：</strong>{% if result["season"] == 'peak' %}繁忙期{% else %}通常期{% endif %}</p>
+  <p><strong>キャンペーンコード：</strong>{{ result["campaign_code"] }}</p>
 
   <p><strong>お名前：</strong>{{ result["name"] }}</p>
   <p><strong>電話番号：</strong>{{ result["phone"] }}</p>
@@ -64,7 +69,8 @@
 
   <p>作業員費：¥{{ result["worker_cost"] }}</p>
   <p>車両費：¥{{ result["vehicle_cost"] }}</p>
-  <p class="total">合計（税込）：¥{{ result["total_cost_with_tax"] }}</p>
+  <p>小計（税込）：¥{{ result["total_cost_with_tax"] }}</p>
+  <p class="total">最終合計：¥{{ result["final_cost"] }}</p>
 
   <div class="section-title">■ 確認事項</div>
   <p>・本見積もりは概算です。実際の作業内容により変動する場合があります。</p>
