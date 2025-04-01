@@ -4,7 +4,16 @@
   <meta charset="UTF-8">
   <title>引越し見積もりフォーム</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOeJMKII-qAPSpO20XhyXxEvOfSKwU3To&libraries=places"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ステッパーを非表示にするCSS */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
   <div class="max-w-4xl mx-auto p-4 sm:p-6">
@@ -27,11 +36,11 @@
         </div>
         <div>
           <label class="block mb-1 font-medium">引越し元住所</label>
-          <input type="text" name="from_address" required class="w-full border border-gray-300 rounded px-3 py-2">
+          <input type="text" id="from_address" name="from_address" required class="w-full border border-gray-300 rounded px-3 py-2">
         </div>
         <div>
           <label class="block mb-1 font-medium">引越し先住所</label>
-          <input type="text" name="to_address" required class="w-full border border-gray-300 rounded px-3 py-2">
+          <input type="text" id="to_address" name="to_address" required class="w-full border border-gray-300 rounded px-3 py-2">
         </div>
       </div>
 
@@ -77,7 +86,7 @@
       <!-- 距離 -->
       <div class="mt-6">
         <label class="block mb-1 font-medium">距離（km）</label>
-        <input type="number" name="distance" value="0" min="0"
+        <input type="number" id="distance" name="distance" value="0" min="0"
                class="w-full border border-gray-300 rounded px-3 py-2">
       </div>
 
@@ -138,5 +147,53 @@
       input.value = currentValue;
     }
   </script>
+  
+  <script>
+  let fromAutocomplete, toAutocomplete;
+
+  function initMap() {
+    // from_address用のオートコンプリート
+    const fromInput = document.getElementById("from_address");
+    fromAutocomplete = new google.maps.places.Autocomplete(fromInput);
+
+    // to_address用のオートコンプリート
+    const toInput = document.getElementById("to_address");
+    toAutocomplete = new google.maps.places.Autocomplete(toInput);
+
+    // 住所が選択されたタイミングで距離を計算
+    fromAutocomplete.addListener('place_changed', calculateDistance);
+    toAutocomplete.addListener('place_changed', calculateDistance);
+  }
+
+  function calculateDistance() {
+    const fromVal = document.getElementById("from_address").value;
+    const toVal   = document.getElementById("to_address").value;
+
+    // 両方とも住所が入ってるときだけリクエスト
+    if (!fromVal || !toVal) return;
+
+    const service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix({
+      origins: [fromVal],
+      destinations: [toVal],
+      travelMode: google.maps.TravelMode.DRIVING
+    }, function(response, status) {
+      if (status === 'OK') {
+        // 距離を取得 (メートル)
+        const distanceMeters = response.rows[0].elements[0].distance.value;
+        // kmに変換
+        const distanceKm = distanceMeters / 1000;
+        // 小数点1桁くらいに整形
+        const distanceRounded = Math.round(distanceKm * 10) / 10;
+        // inputにセット
+        document.getElementById("distance").value = distanceRounded;
+      }
+    });
+  }
+
+  // ページ読み込み時に initMap() を呼ぶ
+  window.addEventListener("load", initMap);
+</script>
+
 </body>
 </html>
