@@ -109,8 +109,6 @@ def get_worker_count(points):
     return 0
 
 def get_distance_multiplier(distance):
-    # Render向けなどで数字が文字列の場合に備え、整数化
-    distance = int(distance)
     if distance <= 10:
         return 1.0
     else:
