@@ -1,7 +1,30 @@
 # app.py
 from flask import Flask, render_template, request, session, make_response, redirect, url_for, flash
 from datetime import timedelta
-import json
+import json, os
+
+CONFIG_FILE = "admin_config.json"
+
+# 設定をファイルから読み込む
+def load_config():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
+        return {
+            "worker_fee": 20000,
+            "truck_costs": {
+                "軽トラック": 10000,
+                "2tショート": 30000,
+                "2tロング": 30000,
+                "2tロングワイド": 30000,
+            }
+        }
+
+# 設定をファイルに保存する
+def save_config(config):
+    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        json.dump(config, f, ensure_ascii=False, indent=2)
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
@@ -122,8 +145,8 @@ def index():
 
     if request.method == "POST":
 
-        # セッションから管理設定を取得
-        admin_config = session.get("admin_config", DEFAULT_ADMIN_CONFIG)
+        # jsonから管理設定を取得
+        admin_config = load_config()
         worker_fee = admin_config.get("worker_fee", 20000)
         truck_costs = admin_config.get("truck_costs", {})
 
@@ -322,8 +345,6 @@ def view_estimate():
     result = json.loads(session["latest_result"])
     return render_template("estimate_view.html", result=result)
 
-import os
-
 # 管理画面で使う初期設定（何も保存されていないときの値）
 DEFAULT_ADMIN_CONFIG = {
     "worker_fee": 20000,
@@ -339,7 +360,7 @@ DEFAULT_ADMIN_CONFIG = {
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     # 現在の設定をセッションから取得（なければ初期値を使う）
-    config = session.get("admin_config", DEFAULT_ADMIN_CONFIG.copy())
+    config = load_config()
 
     if request.method == "POST":
         try:
@@ -357,7 +378,7 @@ def admin():
                 "worker_fee": worker_fee,
                 "truck_costs": truck_costs
             }
-            session["admin_config"] = config
+            save_config(config)
             flash("設定を保存しました！", "success")
         except Exception as e:
             flash(f"エラーが発生しました: {e}", "error")
