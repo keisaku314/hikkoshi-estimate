@@ -28,6 +28,13 @@
           <td class="p-2">
             <a href="/admin/history/{{ item.id }}"
                class="text-blue-600 hover:underline">詳細を見る</a>
+            <form method="POST" action="/admin/history/{{ item.id }}/delete"
+                  class="inline-block ml-2"
+                  onsubmit="return confirm('本当に削除しますか？');">
+              <button type="submit" class="text-red-600 hover:underline">
+                🗑 削除
+              </button>
+            </form>
           </td>
         </tr>
         {% endfor %}
