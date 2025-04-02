@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理画面｜引越し見積もりアプリ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-xl mt-10">
+    <h1 class="text-2xl font-bold mb-4">🚛 管理者設定画面</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="mb-4">
+          {% for category, message in messages %}
+            <li class="text-sm p-2 rounded {% if category == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+              {{ message }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="space-y-6">
+      <div>
+        <label class="block font-semibold mb-1">👷‍♂️ 作業員1人あたりの費用（円）</label>
+        <input type="number" name="worker_fee"
+               value="{{ config.worker_fee }}"
+               class="w-full border border-gray-300 rounded px-3 py-2">
+      </div>
+
+      <div>
+        <label class="block font-semibold mb-2">🚚 トラックごとの費用（円）</label>
+        <div class="space-y-2">
+          {% for truck, cost in config.truck_costs.items() %}
+          <div class="flex items-center justify-between">
+            <label>{{ truck }}</label>
+            <input type="number" name="truck_cost_{{ truck }}"
+                   value="{{ cost }}"
+                   class="border border-gray-300 rounded px-3 py-1 w-40 text-right">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="text-center mt-6">
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+          💾 設定を保存する
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a href="/" class="text-blue-500 hover:underline">← 見積もり画面に戻る</a>
+    </div>
+  </div>
+</body>
+</html>
