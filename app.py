@@ -401,6 +401,15 @@ def view_history_detail(history_id):
             return render_template("estimate_view.html", result=h["data"])
     return "見積もりが見つかりませんでした", 404
 
+#履歴削除機能
+@app.route("/admin/history/<history_id>/delete", methods=["POST"])
+def delete_history_entry(history_id):
+    history = load_history()
+    new_history = [h for h in history if h["id"] != history_id]
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(new_history, f, ensure_ascii=False, indent=2)
+    flash("履歴を削除しました。", "success")
+    return redirect(url_for("view_history"))
 
 # 管理画面で使う初期設定（何も保存されていないときの値）
 DEFAULT_ADMIN_CONFIG = {
