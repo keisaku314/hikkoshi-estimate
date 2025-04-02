@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, session, make_response, redirect, url_for
+from flask import Flask, render_template, request, session, make_response, redirect, url_for, flash
 from datetime import timedelta
 import json
 
@@ -318,6 +318,47 @@ def view_estimate():
     return render_template("estimate_view.html", result=result)
 
 import os
+
+# 管理画面で使う初期設定（何も保存されていないときの値）
+DEFAULT_ADMIN_CONFIG = {
+    "worker_fee": 20000,
+    "truck_costs": {
+        "軽トラック": 10000,
+        "2tショート": 30000,
+        "2tロング": 30000,
+        "2tロングワイド": 30000,
+    }
+}
+
+# /admin にアクセスすると管理画面が表示される
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    # 現在の設定をセッションから取得（なければ初期値を使う）
+    config = session.get("admin_config", DEFAULT_ADMIN_CONFIG.copy())
+
+    if request.method == "POST":
+        try:
+            # フォームから値を受け取って数値化
+            worker_fee = int(request.form.get("worker_fee", 20000))
+            truck_costs = {
+                "軽トラック": int(request.form.get("truck_cost_軽トラック", 10000)),
+                "2tショート": int(request.form.get("truck_cost_2tショート", 30000)),
+                "2tロング": int(request.form.get("truck_cost_2tロング", 30000)),
+                "2tロングワイド": int(request.form.get("truck_cost_2tロングワイド", 30000)),
+            }
+
+            # 設定をセッションに保存
+            config = {
+                "worker_fee": worker_fee,
+                "truck_costs": truck_costs
+            }
+            session["admin_config"] = config
+            flash("設定を保存しました！", "success")
+        except Exception as e:
+            flash(f"エラーが発生しました: {e}", "error")
+
+    # 管理画面を表示
+    return render_template("admin.html", config=config)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render用ポート取得
