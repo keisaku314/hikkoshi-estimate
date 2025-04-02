@@ -8,8 +8,20 @@ CONFIG_FILE = "admin_config.json"
 # 設定をファイルから読み込む
 def load_config():
     if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            # 壊れてたら初期化
+            return {
+                "worker_fee": 20000,
+                "truck_costs": {
+                    "軽トラック": 10000,
+                    "2tショート": 30000,
+                    "2tロング": 30000,
+                    "2tロングワイド": 30000,
+                }
+            }
     else:
         return {
             "worker_fee": 20000,
