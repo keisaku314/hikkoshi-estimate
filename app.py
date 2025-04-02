@@ -122,6 +122,11 @@ def index():
 
     if request.method == "POST":
 
+        # セッションから管理設定を取得
+        admin_config = session.get("admin_config", DEFAULT_ADMIN_CONFIG)
+        worker_fee = admin_config.get("worker_fee", 20000)
+        truck_costs = admin_config.get("truck_costs", {})
+
         
         form_data = request.form.to_dict()
         # 担当者 & シーズン & キャンペーンコード
@@ -203,14 +208,14 @@ def index():
         # 車両費 + 作業員費
         vehicle_cost = 0
         for t in truck_point_splits:
-            base_cost = t["truck"]["cost"]
+            truck_name = t["truck"]["name"]
+            base_cost = truck_costs.get(truck_name, t["truck"]["cost"])  # セッションの設定を優先
             # 距離係数×シーズン係数
             cost = base_cost * distance_multiplier * season_factor
             vehicle_cost += cost
 
         # 作業員費
-        base_worker_cost = 20000  # 通常期1人あたり
-        worker_cost = total_workers * base_worker_cost * season_factor
+        worker_cost = total_workers * worker_fee * season_factor
 
         # 小計
         total_cost = int(vehicle_cost + worker_cost)
