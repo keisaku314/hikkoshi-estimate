@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>見積もり履歴一覧</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <div class="max-w-5xl mx-auto p-6 bg-white shadow-md mt-10 rounded-xl">
+    <h1 class="text-2xl font-bold mb-6">🗂 見積もり履歴一覧</h1>
+
+    {% if history %}
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b font-semibold">
+          <th class="p-2">日時</th>
+          <th class="p-2">お名前</th>
+          <th class="p-2 text-right">税込金額</th>
+          <th class="p-2">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in history %}
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-2">{{ item.timestamp }}</td>
+          <td class="p-2">{{ item.name }}</td>
+          <td class="p-2 text-right">¥{{ "{:,}".format(item.total_cost_with_tax) }}</td>
+          <td class="p-2">
+            <a href="/admin/history/{{ item.id }}"
+               class="text-blue-600 hover:underline">詳細を見る</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>履歴はまだありません。</p>
+    {% endif %}
+
+    <div class="mt-6 text-center">
+      <a href="/admin" class="text-blue-500 hover:underline">← 管理画面に戻る</a>
+    </div>
+  </div>
+</body>
+</html>
