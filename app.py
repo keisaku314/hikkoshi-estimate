@@ -3,6 +3,24 @@ from flask import Flask, render_template, request, session, make_response, redir
 from datetime import timedelta
 import json, os
 
+from uuid import uuid4
+from datetime import datetime
+
+HISTORY_FILE = "history.json"
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
+        return []
+
+def save_history_entry(entry):
+    history = load_history()
+    history.insert(0, entry)  # 新しいものを先頭に
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+
 CONFIG_FILE = "admin_config.json"
 
 # 設定をファイルから読み込む
@@ -310,6 +328,17 @@ def index():
             "final_cost": int(final_cost),
         }
 
+        # 履歴として保存
+        history_entry = {
+        "id": str(uuid4()),
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "name": name,
+        "total_cost_with_tax": total_cost_with_tax,
+        "data": result
+        }
+        save_history_entry(history_entry)
+
+
         # セッションに保存
         session["latest_result"] = json.dumps(result, ensure_ascii=False)
 
@@ -356,6 +385,22 @@ def view_estimate():
         return "見積もりデータが見つかりません", 400
     result = json.loads(session["latest_result"])
     return render_template("estimate_view.html", result=result)
+
+# 履歴一覧ページのルートを追加
+@app.route("/admin/history")
+def view_history():
+    history = load_history()
+    return render_template("history.html", history=history)
+
+# 詳細ページ（個別表示）
+@app.route("/admin/history/<history_id>")
+def view_history_detail(history_id):
+    history = load_history()
+    for h in history:
+        if h["id"] == history_id:
+            return render_template("estimate_view.html", result=h["data"])
+    return "見積もりが見つかりませんでした", 404
+
 
 # 管理画面で使う初期設定（何も保存されていないときの値）
 DEFAULT_ADMIN_CONFIG = {
