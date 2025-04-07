@@ -1,7 +1,8 @@
 # app.py
-from flask import Flask, render_template, request, session, make_response, redirect, url_for, flash
+from flask import Flask, render_template, request, session, make_response, redirect, url_for, flash, Response
 from datetime import timedelta
 import json, os
+import csv
 
 from uuid import uuid4
 from datetime import datetime
@@ -451,6 +452,39 @@ def admin():
 
     # 管理画面を表示
     return render_template("admin.html", config=config)
+
+@app.route("/admin/history.csv")
+def download_history_csv():
+    history = load_history()
+
+    # CSVデータをメモリに書き出す
+    output = []
+    headers = ["作成日時", "名前", "金額（税込）", "引越し元住所", "引越し先住所"]
+    output.append(headers)
+
+    for item in history:
+        data = item["data"]
+        row = [
+            item["timestamp"],
+            item["name"],
+            item["total_cost_with_tax"],
+            data.get("from_address", ""),
+            data.get("to_address", "")
+        ]
+        output.append(row)
+
+    # 文字列に変換
+    def generate():
+        for row in output:
+            yield ",".join(f'"{str(col)}"' for col in row) + "\n"
+
+    return Response(
+        generate(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=history.csv"
+        }
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render用ポート取得
